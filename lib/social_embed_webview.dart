@@ -1,10 +1,16 @@
 library social_embed_webview;
 
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:social_embed_webview/platforms/social-media-generic.dart';
 import 'package:social_embed_webview/utils/common-utils.dart';
+import 'package:social_embed_webview/utils/constants.dart';
+import 'package:social_embed_webview/utils/shimmar/shimmer_effect_embed.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter_plus/webview_flutter_plus.dart';
 
 class SocialEmbed extends StatefulWidget {
   final SocialMediaGenericEmbedData socialMediaObj;
@@ -18,14 +24,16 @@ class SocialEmbed extends StatefulWidget {
 }
 
 class _SocialEmbedState extends State<SocialEmbed> with WidgetsBindingObserver {
-  double _height = 300;
-  late final WebViewController wbController;
+  double _height = 1;
+  WebViewPlusController? wbController;
   late String htmlBody;
 
   @override
   void initState() {
     super.initState();
     // htmlBody = ;
+    if (Platform.isAndroid) WebView.platform = AndroidWebView();
+
     if (widget.socialMediaObj.supportMediaControll)
       WidgetsBinding.instance!.addObserver(this);
   }
@@ -43,52 +51,82 @@ class _SocialEmbedState extends State<SocialEmbed> with WidgetsBindingObserver {
       case AppLifecycleState.resumed:
         break;
       case AppLifecycleState.detached:
-        wbController.evaluateJavascript(widget.socialMediaObj.stopVideoScript);
+        wbController!.webViewController.evaluateJavascript(widget.socialMediaObj.stopVideoScript);
         break;
       case AppLifecycleState.inactive:
       case AppLifecycleState.paused:
-        wbController.evaluateJavascript(widget.socialMediaObj.pauseVideoScript);
+        wbController!.webViewController.evaluateJavascript(widget.socialMediaObj.pauseVideoScript);
         break;
     }
   }
+  bool isLoading=true;
 
   @override
   Widget build(BuildContext context) {
-    final wv = WebView(
-        initialUrl: htmlToURI(getHtmlBody()),
-        javascriptChannels:
-            <JavascriptChannel>[_getHeightJavascriptChannel()].toSet(),
+    final wv = WebViewPlus(
+        initialUrl: '',
+        javascriptChannels: <JavascriptChannel>[_getHeightJavascriptChannel()].toSet(),
         javascriptMode: JavascriptMode.unrestricted,
         initialMediaPlaybackPolicy: AutoMediaPlaybackPolicy.always_allow,
         onWebViewCreated: (wbc) {
           wbController = wbc;
+          wbController!.loadUrl(htmlToURI(getHtmlBody()));
+
         },
-        onPageFinished: (str) {
-          final color = colorToHtmlRGBA(getBackgroundColor(context));
-          wbController.evaluateJavascript(
-              'document.body.style= "background-color: $color"');
-          if (widget.socialMediaObj.aspectRatio == null)
-            wbController
-                .evaluateJavascript('setTimeout(() => sendHeight(), 0)');
+        onPageFinished: (str) async{
+       /*   if(wbController!=null) {
+            final color = colorToHtmlRGBA(getBackgroundColor(context));
+            wbController!.evaluateJavascript(
+                'document.body.style= "background-color: $color"');
+            if (widget.socialMediaObj.aspectRatio == null)
+              wbController!
+                  .evaluateJavascript('setTimeout(() => sendHeight(), 0)');
+
+            double height =   double.parse(await wbController!.evaluateJavascript("document.documentElement.scrollHeight;"));
+            print("onPageFinished");
+            Timer(Duration(seconds: 2), () {setState(() {
+              isLoading = false;
+              _height = height;
+              // _getHeightJavascriptChannel();
+            });
+            });
+          }*/
+       Timer(Duration(seconds: 2), () {
+          wbController!.getHeight().then((double height) {
+            print("finalHeight: " + height.toString());
+            setState(() {
+              _height = height + widget.socialMediaObj.bottomMargin;
+              isLoading = false;
+            });
+          });
+       });
+
         },
         navigationDelegate: (navigation) async {
-          final url = navigation.url;
+         /* final url = navigation.url;
           if (navigation.isForMainFrame && await canLaunch(url)) {
             launch(url);
             return NavigationDecision.prevent;
           }
-          return NavigationDecision.navigate;
+          return NavigationDecision.navigate;*/
+          return NavigationDecision.prevent;
         });
     final ar = widget.socialMediaObj.aspectRatio;
-    return (ar != null)
-        ? ConstrainedBox(
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height / 1.5,
-              maxWidth: double.infinity,
-            ),
-            child: AspectRatio(aspectRatio: ar, child: wv),
-          )
-        : SizedBox(height: _height, child: wv);
+    return Stack(
+      children: <Widget>[
+        (ar != null)
+            ? ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height / 1.5,
+            maxWidth: double.infinity,
+          ),
+          child: AspectRatio(aspectRatio: ar, child: wv),
+        )
+            : SizedBox(height: _height, child: wv),
+        isLoading ? Center(child: ShimmerEffectEmbed(ar : widget.socialMediaObj.aspectRatio, height: _height,),)
+            : SizedBox(),
+      ],
+    );
   }
 
   JavascriptChannel _getHeightJavascriptChannel() {
@@ -102,6 +140,9 @@ class _SocialEmbedState extends State<SocialEmbed> with WidgetsBindingObserver {
   void _setHeight(double height) {
     setState(() {
       _height = height + widget.socialMediaObj.bottomMargin;
+      print("height");
+      print(height);
+      print(_height);
     });
   }
 
@@ -145,4 +186,12 @@ class _SocialEmbedState extends State<SocialEmbed> with WidgetsBindingObserver {
       resize_ob.observe(widget);
     </script>
   """;
+
+  double getHeightSOcilaType(){
+    var height;
+    if(getHtmlBody().contains('instagram')){
+      height = 624;
+    }
+    return height!;
+  }
 }

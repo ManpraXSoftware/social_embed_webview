@@ -43,11 +43,12 @@ class MyApp extends StatelessWidget {
           body: SingleChildScrollView(
             child: Column(
                 children: [
-              TwitterEmbedData(embedHtml: tweetContent),
+
               InstagramEmbedData(embedHtml: instaContent),
               YoutubeEmbedData(videoId: dataYt),
-              FacebookVideoEmbedData(videoUrl: dataFb),
-              FacebookPostEmbedData(postUrl: dataFBPost)
+                  FacebookVideoEmbedData(videoUrl: dataFb),
+             FacebookPostEmbedData(postUrl: dataFBPost),
+                  TwitterEmbedData(embedHtml: tweetContent),
             ]
                     .map((o) => Padding(
                           padding: const EdgeInsets.all(5.0),
