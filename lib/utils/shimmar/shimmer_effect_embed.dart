@@ -29,7 +29,10 @@ class ShimmerEffectEmbed extends StatelessWidget {
 
   Widget bodyUI(){
     return ClipRRect(
-      borderRadius: BorderRadius.all(Radius.circular(16)),
+     /* borderRadius: BorderRadius.only(
+          topRight: Radius.circular(16),
+          topLeft: Radius.circular(16),
+      ),*/
       child: Shimmer.fromColors(
         baseColor: shimmerBaseColor,
         highlightColor: shimmerHighlightColor,

@@ -64,6 +64,7 @@ class _SocialEmbedState extends State<SocialEmbed> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final wv = WebViewPlus(
+
         initialUrl: '',
         javascriptChannels: <JavascriptChannel>[_getHeightJavascriptChannel()].toSet(),
         javascriptMode: JavascriptMode.unrestricted,
@@ -83,17 +84,10 @@ class _SocialEmbedState extends State<SocialEmbed> with WidgetsBindingObserver {
                   .evaluateJavascript('setTimeout(() => sendHeight(), 0)');
 
             double height =   double.parse(await wbController!.evaluateJavascript("document.documentElement.scrollHeight;"));
-            print("onPageFinished");
-            Timer(Duration(seconds: 2), () {setState(() {
-              isLoading = false;
-              _height = height;
-              // _getHeightJavascriptChannel();
-            });
-            });
           }*/
-       Timer(Duration(seconds: 2), () {
+       Timer(Duration(milliseconds: 1200), () {
           wbController!.getHeight().then((double height) {
-            print("finalHeight: " + height.toString());
+           // print("finalHeight: " + height.toString());
             setState(() {
               _height = height + widget.socialMediaObj.bottomMargin;
               isLoading = false;
@@ -140,9 +134,9 @@ class _SocialEmbedState extends State<SocialEmbed> with WidgetsBindingObserver {
   void _setHeight(double height) {
     setState(() {
       _height = height + widget.socialMediaObj.bottomMargin;
-      print("height");
-      print(height);
-      print(_height);
+      // print("height");
+      // print(height);
+      // print(_height);
     });
   }
 
