@@ -103,6 +103,9 @@ class _SocialEmbedState extends State<SocialEmbed> with WidgetsBindingObserver {
             return NavigationDecision.prevent;
           }
           return NavigationDecision.navigate;*/
+          if(Platform.isIOS) {
+            return NavigationDecision.navigate;
+          }
           return NavigationDecision.prevent;
         });
     final ar = widget.socialMediaObj.aspectRatio;
