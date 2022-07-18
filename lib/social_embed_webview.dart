@@ -97,16 +97,10 @@ class _SocialEmbedState extends State<SocialEmbed> with WidgetsBindingObserver {
 
         },
         navigationDelegate: (navigation) async {
-         /* final url = navigation.url;
-          if (navigation.isForMainFrame && await canLaunch(url)) {
-            launch(url);
+          if(!isLoading) {
             return NavigationDecision.prevent;
           }
-          return NavigationDecision.navigate;*/
-          if(Platform.isIOS) {
-            return NavigationDecision.navigate;
-          }
-          return NavigationDecision.prevent;
+          return NavigationDecision.navigate;
         });
     final ar = widget.socialMediaObj.aspectRatio;
     return Stack(
