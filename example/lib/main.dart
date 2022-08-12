@@ -18,11 +18,13 @@ String instaContent =
 String telegramContent =
 """<script async src="https://telegram.org/js/telegram-widget.js?19" data-telegram-post="cricket_fantasy_and_contests/4390" data-width="100%"></script>""";
 /// URL of facebook post or video that is need to be embedded
-String dataFb = "https://www.facebook.com/watch/?v=549064515895454";
+String dataFb = "https://www.facebook.com/AsiaRoadRacing/videos/live-fim-asia-road-racing-championship-round-3-sugo-international-racing-course-/442481130949128/";
+String dataFb1 = "https://www.facebook.com/ifmamuaythaiofficial/videos/ifma-2022/1103350056985633/";
 String dataFBPost = "https://www.facebook.com/WHO/posts/3425180564193969";
 
 /// id of youtube video. eg: https://www.youtube.com/watch?v=F8JfodMfQbg value after `?v=`
-String dataYt = "F8JfodMfQbg";
+String dataYt = "1UnyJNJKO88";
+String dataYt1 = "Z9BWdkyYY54";
 
 void main() {
   runApp(MyApp());
@@ -46,12 +48,15 @@ class MyApp extends StatelessWidget {
           body: SingleChildScrollView(
             child: Column(
                 children: [
-                  //TelegramEmbedData(embedHtml: telegramContent),
-                   //InstagramEmbedData(embedHtml: instaContent),
+                 // TelegramEmbedData(embedHtml: telegramContent),
+                  //InstagramEmbedData(embedHtml: instaContent),
+                  FacebookVideoEmbedData(videoUrl: dataFb),
+                  FacebookVideoEmbedData(videoUrl: dataFb1),
+                 // FacebookPostEmbedData(postUrl: dataFBPost),
+                  YoutubeEmbedData(videoId: dataYt1),
                   YoutubeEmbedData(videoId: dataYt),
-                  //FacebookVideoEmbedData(videoUrl: dataFb),
-                  //FacebookPostEmbedData(postUrl: dataFBPost),
-                 // TwitterEmbedData(embedHtml: tweetContent),
+                  YoutubeEmbedData(videoId: 'kkk1VCFxUFw'),
+                  // TwitterEmbedData(embedHtml: tweetContent),
             ]
                     .map((o) => Padding(
                           padding: const EdgeInsets.all(5.0),

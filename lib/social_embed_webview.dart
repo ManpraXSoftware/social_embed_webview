@@ -4,13 +4,11 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:social_embed_webview/platforms/social-media-generic.dart';
 import 'package:social_embed_webview/utils/common-utils.dart';
-import 'package:social_embed_webview/utils/constants.dart';
 import 'package:social_embed_webview/utils/shimmar/shimmer_effect_embed.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:webview_flutter_plus/webview_flutter_plus.dart';
 
 class SocialEmbed extends StatefulWidget {
   final SocialMediaGenericEmbedData socialMediaObj;
@@ -25,14 +23,14 @@ class SocialEmbed extends StatefulWidget {
 
 class _SocialEmbedState extends State<SocialEmbed> with WidgetsBindingObserver {
   double _height = 1;
-  WebViewPlusController? wbController;
+  WebViewController? wbController;
   late String htmlBody;
 
   @override
   void initState() {
     super.initState();
     // htmlBody = ;
-    if (Platform.isAndroid) WebView.platform = AndroidWebView();
+    if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
 
     if (widget.socialMediaObj.supportMediaControll)
       WidgetsBinding.instance!.addObserver(this);
@@ -51,28 +49,28 @@ class _SocialEmbedState extends State<SocialEmbed> with WidgetsBindingObserver {
       case AppLifecycleState.resumed:
         break;
       case AppLifecycleState.detached:
-        wbController!.webViewController.evaluateJavascript(widget.socialMediaObj.stopVideoScript);
+        wbController!.evaluateJavascript(widget.socialMediaObj.stopVideoScript);
         break;
       case AppLifecycleState.inactive:
       case AppLifecycleState.paused:
-        wbController!.webViewController.evaluateJavascript(widget.socialMediaObj.pauseVideoScript);
+        wbController!.evaluateJavascript(widget.socialMediaObj.pauseVideoScript);
         break;
     }
   }
   bool isLoading=true;
+  final Completer<WebViewController> _controller = Completer<WebViewController>();
 
   @override
   Widget build(BuildContext context) {
-    final wv = WebViewPlus(
-
+    final wv = WebView(
         initialUrl: '',
         javascriptChannels: <JavascriptChannel>[_getHeightJavascriptChannel()].toSet(),
         javascriptMode: JavascriptMode.unrestricted,
         initialMediaPlaybackPolicy: AutoMediaPlaybackPolicy.always_allow,
-        onWebViewCreated: (wbc) {
+        onWebViewCreated: (wbc) async{
           wbController = wbc;
-          wbController!.loadUrl(htmlToURI(getHtmlBody()));
-
+          await wbController!.loadUrl(htmlToURI(getHtmlBody()));
+          _controller.complete(wbController);
         },
         onPageFinished: (str) async{
        /*   if(wbController!=null) {
@@ -85,14 +83,33 @@ class _SocialEmbedState extends State<SocialEmbed> with WidgetsBindingObserver {
 
             double height =   double.parse(await wbController!.evaluateJavascript("document.documentElement.scrollHeight;"));
           }*/
-       Timer(Duration(milliseconds: 1200), () {
-          wbController!.getHeight().then((double height) {
-           // print("finalHeight: " + height.toString());
-            setState(() {
-              _height = height + widget.socialMediaObj.bottomMargin;
-              isLoading = false;
-            });
-          });
+          var _wvController = await _controller.future;
+          Timer(Duration(milliseconds: getLoadingTime()), () async{
+         double height =
+         double.parse(await _wvController.evaluateJavascript('document.documentElement.scrollHeight;'));
+         print("height");
+         print(height);
+         setState(() {
+           _height = height + widget.socialMediaObj.bottomMargin;
+           isLoading = false;
+         });
+         try {
+           await _wvController.evaluateJavascript('''
+           var audio = document.getElementsByTagName("audio");
+           var iframe = document.getElementsByTagName("iframe");
+           
+           if(iframe.length > 0){
+             iframe[0].width = '100%';
+             //iframe[0].setAttribute('webkitallowfullscreen', '');
+           }
+           if(audio.length > 0){
+               audio[0].autoPlay = true;
+               audio[0].play();
+            }
+            ''');
+         } on PlatformException catch (e) {
+           print(e);
+         }
        });
 
         },
@@ -131,9 +148,6 @@ class _SocialEmbedState extends State<SocialEmbed> with WidgetsBindingObserver {
   void _setHeight(double height) {
     setState(() {
       _height = height + widget.socialMediaObj.bottomMargin;
-      // print("height");
-      // print(height);
-      // print(_height);
     });
   }
 
@@ -178,11 +192,12 @@ class _SocialEmbedState extends State<SocialEmbed> with WidgetsBindingObserver {
     </script>
   """;
 
-  double getHeightSOcilaType(){
-    var height;
-    if(getHtmlBody().contains('instagram')){
-      height = 624;
+  dynamic getLoadingTime(){
+    var fbString = 'facebook';
+    var time = 1200;
+    if(getHtmlBody().contains(fbString)){
+      time = 4000;
     }
-    return height!;
+    return time;
   }
 }
