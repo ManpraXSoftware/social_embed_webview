@@ -8,7 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:social_embed_webview/platforms/social-media-generic.dart';
 import 'package:social_embed_webview/utils/common-utils.dart';
 import 'package:social_embed_webview/utils/shimmar/shimmer_effect_embed.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'webview_flutter_lib/webview_flutter.dart';
 
 class SocialEmbed extends StatefulWidget {
   final SocialMediaGenericEmbedData socialMediaObj;
@@ -85,10 +85,10 @@ class _SocialEmbedState extends State<SocialEmbed> with WidgetsBindingObserver {
           }*/
           var _wvController = await _controller.future;
           Timer(Duration(milliseconds: getLoadingTime()), () async{
-         double height =
-         double.parse(await _wvController.evaluateJavascript('document.documentElement.scrollHeight;'));
-         print("height");
-         print(height);
+            var evaluateJs = await _wvController.evaluateJavascript('document.documentElement.scrollHeight;');
+         double height = double.parse(evaluateJs!);
+        /* print("height");
+         print(height);*/
          setState(() {
            _height = height + widget.socialMediaObj.bottomMargin;
            isLoading = false;

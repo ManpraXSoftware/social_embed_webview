@@ -313,8 +313,8 @@ packages:
     description:
       path: "."
       ref: master
-      resolved-ref: "819e1095ea2ae769e7d2c9dd793b111e52510077"
-      url: "https://github.com/danqzt/webview_flutter-1.0.7.droid_fullscreen"
+      resolved-ref: c1b886e37c0aa1ea45790c22b983612289404402
+      url: "https://github.com/ManpraXSoftware/webview_flutter-1.0.7.droid_fullscreen.git"
     source: git
     version: "1.0.7"
   win32:

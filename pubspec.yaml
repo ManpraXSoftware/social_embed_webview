@@ -13,7 +13,7 @@ dependencies:
   #webview_flutter: ^3.0.4
   webview_flutter:
     git:
-      url: https://github.com/danqzt/webview_flutter-1.0.7.droid_fullscreen
+      url: https://github.com/ManpraXSoftware/webview_flutter-1.0.7.droid_fullscreen.git
       ref: master # branch name
   url_launcher: ^6.0.3
   localstorage: ^4.0.0+1
