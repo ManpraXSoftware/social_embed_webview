@@ -8,7 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:social_embed_webview/platforms/social-media-generic.dart';
 import 'package:social_embed_webview/utils/common-utils.dart';
 import 'package:social_embed_webview/utils/shimmar/shimmer_effect_embed.dart';
-import 'webview_flutter_lib/webview_flutter.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class SocialEmbed extends StatefulWidget {
   final SocialMediaGenericEmbedData socialMediaObj;
